@@ -351,6 +351,8 @@ while cap.isOpened():
         p2_2 = (int(right_pupil_2d[0] + yaw_right_eye*10), int(right_pupil_2d[1] - pitch_right_eye*10))
         cv2.line(image, p1_2, p2_2, (255,0,0),3) 
 
+        # istructions to be left at the end of the loop
+
         end = time.time()
 
         totalTime = end-start
