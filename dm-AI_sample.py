@@ -35,6 +35,14 @@ import statistics as st
 import os
 
 
+def perclos(times):
+    return (times[2]-times[1])/(times[3]-times[0])
+
+def check_alarm_10s(time_state1):
+    if(time_state1 >= 10 ):
+        print("ALARM: EAR > 80% for more than 10s")
+
+
 
 # 2 - Set the desired setting
 
@@ -92,6 +100,9 @@ drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
 
 cap = cv2.VideoCapture(0) # Local webcam (index start from 0)
 
+
+state = 0
+perclos_times = [0, 0, 0, 0]
 
 # 4 - Iterate (within an infinite loop)
 
@@ -191,12 +202,12 @@ while cap.isOpened():
                 if idx == 160:
                     point_160 = (lm.x * img_w, lm.y * img_h)
 
+                if idx == 263:
+                    point_263 = (lm.x * img_w, lm.y * img_h)
+                    #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
+
                 if idx == 362:
                     point_362 = (lm.x * img_w, lm.y * img_h)
-                    #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
-                
-                if idx == 363:
-                    point_363 = (lm.x * img_w, lm.y * img_h)
                     #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
 
                 if idx == 373:
@@ -382,25 +393,49 @@ while cap.isOpened():
 
         #----------------------------------------------------------------------------------------------------------------------
         #EAR RIGHT EYE
-        ear_right_eye = (abs(point_158[1]-point_153[1]) + abs(point_160[1]-point_144[1]))/2/(abs(point_33[0]-point_133[0]))
-        #compute the percentage: ear : 2/3 = x:100 => x = ear*100*3/2
-        #print(ear_right_eye)
-        perc_right = ear_right_eye*180
-        print(perc_right)
+        ear_right_eye = (abs(point_158[1]-point_153[1]) + abs(point_160[1]-point_144[1]))/(2*(abs(point_33[0]-point_133[0])))
 
         #----------------------------------------------------------------------------------------------------------------------
         #EAR LEFT EYE
-        ear_left_eye = (abs(point_385[1]-point_380[1]) + abs(point_387[1]-point_373[1]))/2/(abs(point_362[0]-point_263[0]))
-        #compute the percentage: ear : 2/3 = x:100 => x = ear*100*3/2
-        #print(ear_left_eye)
-        perc_left = ear_left_eye*180
-        print(perc_left)
+        ear_left_eye = (abs(point_385[1]-point_380[1]) + abs(point_387[1]-point_373[1]))/(2*(abs(point_362[0]-point_263[0])))
+
+        #MEAN EAR
+        ear = (ear_left_eye+ear_right_eye)/2
+        perc_open = ear*290     #290 is a tuning parameter   
+
+        # MEASURE TIME SINCE LAST FRAME
+
+        end = time.time()
+        totalTime = end-start
+
+        #--------------------------------------------------------------------------------------------------------------------
+        #MANAGE STATE MACHINE
+        if(perc_open >= 80): #state 1
+            if(state == 4): #end of perclos cycle
+                print("perclos: ", perclos(perclos_times)) #take all the four times and compute perclos
+                state = 1
+                perclos_times = [0, 0, 0, 0]
+
+            else :
+                perclos_times[0] += totalTime
+                check_alarm_10s(perclos_times[0])
+                state = 1
+
+        elif(20 <= perc_open < 80):    #state 2 or 4
+            if(state == 0 or state == 1): #since the previous state was 1, now we're in state 2
+                state = 2
+                perclos_times[1] += totalTime
+            elif(state == 3): #since the previous state was 3, now we're in state 4
+                state = 4
+                perclos_times[3] += totalTime
+
+        else: #perc_open < 20 => state 3
+            state = 3
+            perclos_times[2] += totalTime
+
 
         # ---------------------------------------------------------------------------------------------------------------------
         # istructions to be left at the end of the loop
-        end = time.time()
-
-        totalTime = end-start
 
         if totalTime>0:
             fps = 1 / totalTime
@@ -427,4 +462,3 @@ cap.release()
     
 
 # [EOF]
-
