@@ -130,18 +130,18 @@ while cap.isOpened():
     img_h, img_w, img_c = image.shape
 
 
-    point_RER = [] # Right Eye Right
-    point_REB = [] # Right Eye Bottom
-    point_REL = [] # Right Eye Left
+    point_33 = [] # Right Eye Right
+    point_145 = [] # Right Eye Bottom
+    point_133 = [] # Right Eye Left
     point_RET = [] # Right Eye Top
 
-    point_LER = [] # Left Eye Right
-    point_LEB = [] # Left Eye Bottom
-    point_LEL = [] # Left Eye Left
-    point_LET = [] # Left Eye Top
+    point_362 = [] # Left Eye Right
+    point_374 = [] # Left Eye Bottom
+    point_263 = [] # Left Eye Left
+    point_386 = [] # Left Eye Top
 
-    point_REIC = [] # Right Eye Iris Center
-    point_LEIC = [] # Left Eye Iris Center
+    point_468 = [] # Right Eye Iris Center
+    point_473 = [] # Left Eye Iris Center
 
     face_2d=[]#aggiunte
     face_3d=[]
@@ -158,45 +158,73 @@ while cap.isOpened():
 
                 # Eye Gaze (Iris Tracking)
                 # Left eye indices list
-                #LEFT_EYE =[ 362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385,384, 398 ]
+                #LEFT_EYE =[ 362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398 ]
                 # Right eye indices list
                 #RIGHT_EYE=[ 33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161 , 246 ]
                 #LEFT_IRIS = [473, 474, 475, 476, 477]
                 #RIGHT_IRIS = [468, 469, 470, 471, 472]
                 if idx == 33:
-                    point_RER = (lm.x * img_w, lm.y * img_h)
-                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
-
-                if idx == 145:
-                    point_REB = (lm.x * img_w, lm.y * img_h)
+                    point_33 = (lm.x * img_w, lm.y * img_h)
                     cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
 
                 if idx == 133:
-                    point_REL = (lm.x * img_w, lm.y * img_h)
+                    point_133 = (lm.x * img_w, lm.y * img_h)
                     cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
+
+                if idx == 144:
+                    point_144 = (lm.x * img_w, lm.y * img_h)
+
+                if idx == 145:
+                    point_145 = (lm.x * img_w, lm.y * img_h)
+                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
+
+                if idx == 153:
+                    point_153 = (lm.x * img_w, lm.y * img_h)
+
+                if idx == 158:
+                    point_158 = (lm.x * img_w, lm.y * img_h)
 
                 if idx == 159:
                     point_RET = (lm.x * img_w, lm.y * img_h)
                     cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
 
+                if idx == 160:
+                    point_160 = (lm.x * img_w, lm.y * img_h)
+
                 if idx == 362:
-                    point_LER = (lm.x * img_w, lm.y * img_h)
+                    point_362 = (lm.x * img_w, lm.y * img_h)
+                    #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
+                
+                if idx == 363:
+                    point_363 = (lm.x * img_w, lm.y * img_h)
+                    #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
+
+                if idx == 373:
+                    point_373 = (lm.x * img_w, lm.y * img_h)
                     #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
 
                 if idx == 374:
-                    point_LEB = (lm.x * img_w, lm.y * img_h)
+                    point_374 = (lm.x * img_w, lm.y * img_h)
                     #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
 
-                if idx == 263:
-                    point_LEL = (lm.x * img_w, lm.y * img_h)
+                if idx == 380:
+                    point_380 = (lm.x * img_w, lm.y * img_h)
+                    #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
+
+                if idx == 385:
+                    point_385 = (lm.x * img_w, lm.y * img_h)
                     #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
 
                 if idx == 386:
-                    point_LET = (lm.x * img_w, lm.y * img_h)
+                    point_386 = (lm.x * img_w, lm.y * img_h)
+                    #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
+
+                if idx == 387:
+                    point_387 = (lm.x * img_w, lm.y * img_h)
                     #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
 
                 if idx == 468:
-                    point_REIC = (lm.x * img_w, lm.y * img_h)
+                    point_468 = (lm.x * img_w, lm.y * img_h)
                     #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(255, 255, 0), thickness=-1)                    
 
                 if idx == 469:
@@ -216,7 +244,7 @@ while cap.isOpened():
                     #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 255, 0), thickness=-1)
 
                 if idx == 473:
-                    point_LEIC = (lm.x * img_w, lm.y * img_h)
+                    point_473 = (lm.x * img_w, lm.y * img_h)
                     #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 255, 255), thickness=-1)
 
                 if idx == 474:
@@ -270,26 +298,26 @@ while cap.isOpened():
                     right_eye_3d.append([x,y,lm.z])            
 
             # 4.4. - Draw the positions on the frame
-            l_eye_width = point_LEL[0] - point_LER[0]
-            l_eye_height = point_LEB[1] - point_LET[1]
-            l_eye_center = [(point_LEL[0] + point_LER[0])/2 ,(point_LEB[1] + point_LET[1])/2]
+            l_eye_width = point_263[0] - point_362[0]
+            l_eye_height = point_374[1] - point_386[1]
+            l_eye_center = [(point_263[0] + point_362[0])/2 ,(point_374[1] + point_386[1])/2]
             #cv2.circle(image, (int(l_eye_center[0]), int(l_eye_center[1])), radius=int(horizontal_threshold * l_eye_width), color=(255, 0, 0), thickness=-1) #center of eye and its radius 
-            cv2.circle(image, (int(point_LEIC[0]), int(point_LEIC[1])), radius=3, color=(0, 255, 0), thickness=-1) # Center of iris
+            cv2.circle(image, (int(point_473[0]), int(point_473[1])), radius=3, color=(0, 255, 0), thickness=-1) # Center of iris
             cv2.circle(image, (int(l_eye_center[0]), int(l_eye_center[1])), radius=2, color=(128, 128, 128), thickness=-1) # Center of eye
             #print("Left eye: x = " + str(np.round(point_LEIC[0],0)) + " , y = " + str(np.round(point_LEIC[1],0)))
-            cv2.putText(image, "Left eye:  x = " + str(np.round(point_LEIC[0],0)) + " , y = " + str(np.round(point_LEIC[1],0)), (200, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2) 
+            cv2.putText(image, "Left eye:  x = " + str(np.round(point_473[0],0)) + " , y = " + str(np.round(point_473[1],0)), (200, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2) 
 
-            r_eye_width = point_REL[0] - point_RER[0]
-            r_eye_height = point_REB[1] - point_RET[1]
-            r_eye_center = [(point_REL[0] + point_RER[0])/2 ,(point_REB[1] + point_RET[1])/2]
+            r_eye_width = point_133[0] - point_33[0]
+            r_eye_height = point_145[1] - point_RET[1]
+            r_eye_center = [(point_133[0] + point_33[0])/2 ,(point_145[1] + point_RET[1])/2]
 
             #cv2.circle(image, (int(r_eye_center[0]), int(r_eye_center[1])), radius=int(horizontal_threshold * r_eye_width), color=(255, 0, 0), thickness=-1) #center of eye and its radius 
 
-            cv2.circle(image, (int(point_REIC[0]), int(point_REIC[1])), radius=3, color=(0, 0, 255), thickness=-1) # Center of iris
+            cv2.circle(image, (int(point_468[0]), int(point_468[1])), radius=3, color=(0, 0, 255), thickness=-1) # Center of iris
             cv2.circle(image, (int(r_eye_center[0]), int(r_eye_center[1])), radius=2, color=(128, 128, 128), thickness=-1) # Center of eye
             #print("right eye: x = " + str(np.round(point_REIC[0],0)) + " , y = " + str(np.round(point_REIC[1],0)))
 
-            cv2.putText(image, "Right eye: x = " + str(np.round(point_REIC[0],0)) + " , y = " + str(np.round(point_REIC[1],0)), (200, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)              
+            cv2.putText(image, "Right eye: x = " + str(np.round(point_468[0],0)) + " , y = " + str(np.round(point_468[1],0)), (200, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)              
             # speed reduction (comment out for full speed)
             time.sleep(1/25) # [s]
 
@@ -325,7 +353,7 @@ while cap.isOpened():
 
         pitch = angles[0]*1800
         yaw = -angles[1]*1800
-        roll = 180 + (np.arctan2(point_RER[1] - point_LEL[1], point_RER[0] - point_LEL[0])*180/np.pi)
+        roll = 180 + (np.arctan2(point_33[1] - point_263[1], point_33[0] - point_263[0])*180/np.pi)
         if roll > 180:
             roll = roll - 360
         
@@ -351,8 +379,25 @@ while cap.isOpened():
         p2_2 = (int(right_pupil_2d[0] + yaw_right_eye*10), int(right_pupil_2d[1] - pitch_right_eye*10))
         cv2.line(image, p1_2, p2_2, (255,0,0),3) 
 
-        # istructions to be left at the end of the loop
 
+        #----------------------------------------------------------------------------------------------------------------------
+        #EAR RIGHT EYE
+        ear_right_eye = (abs(point_158[1]-point_153[1]) + abs(point_160[1]-point_144[1]))/2/(abs(point_33[0]-point_133[0]))
+        #compute the percentage: ear : 2/3 = x:100 => x = ear*100*3/2
+        #print(ear_right_eye)
+        perc_right = ear_right_eye*180
+        print(perc_right)
+
+        #----------------------------------------------------------------------------------------------------------------------
+        #EAR LEFT EYE
+        ear_left_eye = (abs(point_385[1]-point_380[1]) + abs(point_387[1]-point_373[1]))/2/(abs(point_362[0]-point_263[0]))
+        #compute the percentage: ear : 2/3 = x:100 => x = ear*100*3/2
+        #print(ear_left_eye)
+        perc_left = ear_left_eye*180
+        print(perc_left)
+
+        # ---------------------------------------------------------------------------------------------------------------------
+        # istructions to be left at the end of the loop
         end = time.time()
 
         totalTime = end-start
