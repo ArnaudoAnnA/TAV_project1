@@ -330,7 +330,7 @@ while cap.isOpened():
 
             cv2.putText(image, "Right eye: x = " + str(np.round(point_468[0],0)) + " , y = " + str(np.round(point_468[1],0)), (200, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)              
             # speed reduction (comment out for full speed)
-            time.sleep(1/25) # [s]
+            time.sleep(1/5) # [s]
 
         face_2d=np.array(face_2d, dtype=np.float64)
         face_3d=np.array(face_3d, dtype=np.float64)
@@ -367,12 +367,36 @@ while cap.isOpened():
         roll = 180 + (np.arctan2(point_33[1] - point_263[1], point_33[0] - point_263[0])*180/np.pi)
         if roll > 180:
             roll = roll - 360
+
+        #print('HEAD PITCH: ', pitch)
+        #print('HEAD YAW: ', yaw)
         
         pitch_left_eye = angles_left_eye[0]*1800
         yaw_left_eye = angles_left_eye[1]*1800
 
+        #print('LE PITCH: ', pitch_left_eye)
+        #print('LE YAW: ', yaw_left_eye)
+
         pitch_right_eye = angles_right_eye[0]*1800
         yaw_right_eye = angles_right_eye[1]*1800
+
+        #print('RE PITCH: ', pitch_right_eye)
+        #print('RE YAW: ', yaw_right_eye)
+
+        pitch_eyes = (pitch_left_eye+pitch_right_eye)/2
+        yaw_eyes = (yaw_left_eye+yaw_right_eye)/2
+        #print('pitch', pitch_eyes)
+        #print('yaw', yaw_eyes)
+
+        #combine pitch and yaw of both head and eyes
+        pitch_tot = pitch + pitch_eyes
+        yaw_tot = yaw + yaw_eyes
+
+        print('pitch', pitch_tot)
+        print('yaw', yaw_tot)
+
+        if (abs(pitch_tot) > 30 or abs(yaw_tot) > 30):
+            print("ALARM: driver distracted")
 
         #Display directions
         nose_3d_projections, jacobian = cv2.projectPoints(nose_3d, rot_vec, trans_vec, cam_matrix, dist_matrix)
@@ -409,7 +433,7 @@ while cap.isOpened():
         totalTime = end-start
 
         #--------------------------------------------------------------------------------------------------------------------
-        #MANAGE STATE MACHINE
+        # MANAGE STATE MACHINE
         if(perc_open >= 80): #state 1
             if(state == 4): #end of perclos cycle
                 print("perclos: ", perclos(perclos_times)) #take all the four times and compute perclos
