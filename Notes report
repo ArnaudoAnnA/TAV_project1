@@ -1,0 +1,3 @@
+1. spiegare la formula usata per passare dall'ear alla percentuale di apertura dell'occhio
+2. nel gestire la macchina a stati, si è deciso di ignorare i casi di errore in cui si fanno transizioni di stato illegali per tollerare gli errori della fotocamera (glitch)
+3. influenza di pitch e yaw nel calcolo del perclos
