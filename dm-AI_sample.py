@@ -42,6 +42,11 @@ def check_alarm_10s(time_state1):
     if(time_state1 >= 10 ):
         print("ALARM: EAR > 80% for more than 10s")
 
+def eye_yaw(pupil_xy, centre_xy, eye_width):
+    return (pupil_xy[0]-centre_xy[0])*90/(eye_width/2)
+
+def eye_pitch(pupil_xy, centre_xy, eye_width):
+    return (pupil_xy[1]-centre_xy[1])*90/(eye_width/2)
 
 
 # 2 - Set the desired setting
@@ -139,6 +144,9 @@ while cap.isOpened():
     #image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
     img_h, img_w, img_c = image.shape
+    #The camera matrix
+    focal_length=1*img_w
+    cam_matrix=np.array([ [focal_length, 0, img_h/2], [0, focal_length, img_w/2], [0,0,1]])
 
 
     point_33 = [] # Right Eye Right
@@ -196,7 +204,7 @@ while cap.isOpened():
                     point_158 = (lm.x * img_w, lm.y * img_h)
 
                 if idx == 159:
-                    point_RET = (lm.x * img_w, lm.y * img_h)
+                    point_159 = (lm.x * img_w, lm.y * img_h)
                     cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=5, color=(0, 0, 255), thickness=-1)
 
                 if idx == 160:
@@ -319,8 +327,8 @@ while cap.isOpened():
             cv2.putText(image, "Left eye:  x = " + str(np.round(point_473[0],0)) + " , y = " + str(np.round(point_473[1],0)), (200, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2) 
 
             r_eye_width = point_133[0] - point_33[0]
-            r_eye_height = point_145[1] - point_RET[1]
-            r_eye_center = [(point_133[0] + point_33[0])/2 ,(point_145[1] + point_RET[1])/2]
+            r_eye_height = point_145[1] - point_159[1]
+            r_eye_center = [(point_133[0] + point_33[0])/2 ,(point_145[1] + point_159[1])/2]
 
             #cv2.circle(image, (int(r_eye_center[0]), int(r_eye_center[1])), radius=int(horizontal_threshold * r_eye_width), color=(255, 0, 0), thickness=-1) #center of eye and its radius 
 
@@ -330,7 +338,7 @@ while cap.isOpened():
 
             cv2.putText(image, "Right eye: x = " + str(np.round(point_468[0],0)) + " , y = " + str(np.round(point_468[1],0)), (200, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)              
             # speed reduction (comment out for full speed)
-            time.sleep(1/5) # [s]
+            #time.sleep(1/25) # [s]
 
         face_2d=np.array(face_2d, dtype=np.float64)
         face_3d=np.array(face_3d, dtype=np.float64)
@@ -339,64 +347,34 @@ while cap.isOpened():
         right_eye_2d=np.array(right_eye_2d, dtype=np.float64)
         right_eye_3d=np.array(right_eye_3d, dtype=np.float64)
 
-        #The camera matrix
-        focal_length=1*img_w
-
-        cam_matrix=np.array([ [focal_length, 0, img_h/2], [0, focal_length, img_w/2], [0,0,1]])
-
         #The distorsion parameters
         dist_matrix=np.zeros((4,1), dtype=np.float64)
 
         #Solve PnP
         success_face, rot_vec, trans_vec = cv2.solvePnP(face_3d, face_2d, cam_matrix, dist_matrix)
-        success_left_eye, rot_vec_left_eye, trans_vec_left_eye = cv2.solvePnP(left_eye_3d, left_eye_2d, cam_matrix, dist_matrix)
-        success_right_eye, rot_vec_right_eye, trans_vec_right_eye = cv2.solvePnP(right_eye_3d, right_eye_2d, cam_matrix, dist_matrix)
 
         #Get rotational matrix
         rmat, jac = cv2.Rodrigues(rot_vec)
-        rmat_left_eye, jac_left_eye = cv2.Rodrigues(rot_vec_left_eye)
-        rmat_right_eye, jac_right_eye = cv2.Rodrigues(rot_vec_right_eye)
 
         #Get angles
         angles, mtxR, mtxQ, Qx, Qy, Qz = cv2.RQDecomp3x3(rmat)
-        angles_left_eye, mtxR_left_eye, mtxQ_left_eye, Qx_left_eye, Qy_left_eye, Qz_left_eye = cv2.RQDecomp3x3(rmat_left_eye)
-        angles_right_eye, mtxR_right_eye, mtxQ_right_eye, Qx_right_eye, Qy_right_eye, Qz_right_eye = cv2.RQDecomp3x3(rmat_right_eye)
 
+        # PITCH & YAW
         pitch = angles[0]*1800
         yaw = -angles[1]*1800
         roll = 180 + (np.arctan2(point_33[1] - point_263[1], point_33[0] - point_263[0])*180/np.pi)
         if roll > 180:
             roll = roll - 360
+        yaw_left_eye = eye_yaw(left_pupil_2d, l_eye_center, l_eye_width)
+        yaw_right_eye = eye_yaw(right_pupil_2d, r_eye_center, r_eye_width)
+        pitch_left_eye = eye_pitch(left_pupil_2d, l_eye_center, l_eye_width)
+        pitch_right_eye = eye_pitch(right_pupil_2d, r_eye_center, r_eye_width)
 
-        #print('HEAD PITCH: ', pitch)
-        #print('HEAD YAW: ', yaw)
-        
-        pitch_left_eye = angles_left_eye[0]*1800
-        yaw_left_eye = angles_left_eye[1]*1800
+        pitch_tot = pitch + (pitch_left_eye+pitch_right_eye)/2
+        yaw_tot = yaw + (yaw_left_eye+yaw_right_eye)/2
 
-        #print('LE PITCH: ', pitch_left_eye)
-        #print('LE YAW: ', yaw_left_eye)
-
-        pitch_right_eye = angles_right_eye[0]*1800
-        yaw_right_eye = angles_right_eye[1]*1800
-
-        #print('RE PITCH: ', pitch_right_eye)
-        #print('RE YAW: ', yaw_right_eye)
-
-        pitch_eyes = (pitch_left_eye+pitch_right_eye)/2
-        yaw_eyes = (yaw_left_eye+yaw_right_eye)/2
-        #print('pitch', pitch_eyes)
-        #print('yaw', yaw_eyes)
-
-        #combine pitch and yaw of both head and eyes
-        pitch_tot = pitch + pitch_eyes
-        yaw_tot = yaw + yaw_eyes
-
-        print('pitch', pitch_tot)
-        print('yaw', yaw_tot)
-
-        if (abs(pitch_tot) > 30 or abs(yaw_tot) > 30):
-            print("ALARM: driver distracted")
+        #if (abs(pitch_tot) > 30 or abs(yaw_tot) > 30):
+            #print("ALARM: driver distracted")
 
         #Display directions
         nose_3d_projections, jacobian = cv2.projectPoints(nose_3d, rot_vec, trans_vec, cam_matrix, dist_matrix)
@@ -404,12 +382,12 @@ while cap.isOpened():
         p2 = (int(nose_2d[0] - yaw*10), int(nose_2d[1] - pitch*10))
         cv2.line(image, p1, p2, (255,0,0),3)   
 
-        left_eye_3d_projections, jacobian = cv2.projectPoints(left_pupil_3d, rot_vec_left_eye, trans_vec_left_eye, cam_matrix, dist_matrix)
+        #left_eye_3d_projections, jacobian = cv2.projectPoints(left_pupil_3d, rot_vec_left_eye, trans_vec_left_eye, cam_matrix, dist_matrix)
         p1_1 = (int(left_pupil_2d[0]), int(left_pupil_2d[1]))
         p2_1 = (int(left_pupil_2d[0] + yaw_left_eye*10), int(left_pupil_2d[1] + pitch_left_eye*10))
         cv2.line(image, p1_1, p2_1, (255,0,0),3)  
         
-        right_eye_3d_projections, jacobian = cv2.projectPoints(right_pupil_3d, rot_vec_right_eye, trans_vec_right_eye, cam_matrix, dist_matrix)
+        #right_eye_3d_projections, jacobian = cv2.projectPoints(right_pupil_3d, rot_vec_right_eye, trans_vec_right_eye, cam_matrix, dist_matrix)
         p1_2 = (int(right_pupil_2d[0]), int(right_pupil_2d[1]))
         p2_2 = (int(right_pupil_2d[0] + yaw_right_eye*10), int(right_pupil_2d[1] + pitch_right_eye*10))
         cv2.line(image, p1_2, p2_2, (255,0,0),3) 
@@ -417,15 +395,15 @@ while cap.isOpened():
 
         #----------------------------------------------------------------------------------------------------------------------
         #EAR RIGHT EYE
-        ear_right_eye = (abs(point_158[1]-point_153[1]) + abs(point_160[1]-point_144[1]))/(2*(abs(point_33[0]-point_133[0])))
+        ear_right_eye = (abs(point_158[1]-point_153[1]) + abs(point_160[1]-point_144[1])+abs(point_159[1]-point_145[1]))/(3*(abs(point_33[0]-point_133[0])))
 
         #----------------------------------------------------------------------------------------------------------------------
         #EAR LEFT EYE
-        ear_left_eye = (abs(point_385[1]-point_380[1]) + abs(point_387[1]-point_373[1]))/(2*(abs(point_362[0]-point_263[0])))
+        ear_left_eye = (abs(point_385[1]-point_380[1]) + abs(point_387[1]-point_373[1])+abs(point_386[1]-point_374[1]))/(3*(abs(point_362[0]-point_263[0])))
 
         #MEAN EAR
         ear = (ear_left_eye+ear_right_eye)/2
-        perc_open = ear*290     #290 is a tuning parameter   
+        perc_open = ear*350     #300 is a tuning parameter   
 
         # MEASURE TIME SINCE LAST FRAME
 
