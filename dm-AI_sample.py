@@ -406,12 +406,12 @@ while cap.isOpened():
 
         left_eye_3d_projections, jacobian = cv2.projectPoints(left_pupil_3d, rot_vec_left_eye, trans_vec_left_eye, cam_matrix, dist_matrix)
         p1_1 = (int(left_pupil_2d[0]), int(left_pupil_2d[1]))
-        p2_1 = (int(left_pupil_2d[0] + yaw_left_eye*10), int(left_pupil_2d[1] - pitch_left_eye*10))
+        p2_1 = (int(left_pupil_2d[0] + yaw_left_eye*10), int(left_pupil_2d[1] + pitch_left_eye*10))
         cv2.line(image, p1_1, p2_1, (255,0,0),3)  
         
         right_eye_3d_projections, jacobian = cv2.projectPoints(right_pupil_3d, rot_vec_right_eye, trans_vec_right_eye, cam_matrix, dist_matrix)
         p1_2 = (int(right_pupil_2d[0]), int(right_pupil_2d[1]))
-        p2_2 = (int(right_pupil_2d[0] + yaw_right_eye*10), int(right_pupil_2d[1] - pitch_right_eye*10))
+        p2_2 = (int(right_pupil_2d[0] + yaw_right_eye*10), int(right_pupil_2d[1] + pitch_right_eye*10))
         cv2.line(image, p1_2, p2_2, (255,0,0),3) 
 
 
