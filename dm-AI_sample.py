@@ -338,7 +338,7 @@ while cap.isOpened():
 
             cv2.putText(image, "Right eye: x = " + str(np.round(point_468[0],0)) + " , y = " + str(np.round(point_468[1],0)), (200, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)              
             # speed reduction (comment out for full speed)
-            #time.sleep(1/25) # [s]
+            time.sleep(1/5) # [s]
 
         face_2d=np.array(face_2d, dtype=np.float64)
         face_3d=np.array(face_3d, dtype=np.float64)
@@ -362,6 +362,8 @@ while cap.isOpened():
         # PITCH & YAW
         pitch = angles[0]*1800
         yaw = -angles[1]*1800
+        print("nose yaw", yaw)
+        print("nose pitch", pitch)
         roll = 180 + (np.arctan2(point_33[1] - point_263[1], point_33[0] - point_263[0])*180/np.pi)
         if roll > 180:
             roll = roll - 360
@@ -411,29 +413,72 @@ while cap.isOpened():
         totalTime = end-start
 
         #--------------------------------------------------------------------------------------------------------------------
-        # MANAGE STATE MACHINE
-        if(perc_open >= 80): #state 1
-            if(state == 4): #end of perclos cycle
-                print("perclos: ", perclos(perclos_times)) #take all the four times and compute perclos
-                state = 1
-                perclos_times = [0, 0, 0, 0]
+         # MANAGE STATE MACHINE
+        match state:
 
-            else :
-                perclos_times[0] += totalTime
-                check_alarm_10s(perclos_times[0])
-                state = 1
+            case 0: #state 0 (start state)
+                if(perc_open >= 80): 
+                    perclos_times[0] += totalTime #t1
+                    state = 1
+                elif (20 <= perc_open and perc_open < 80):
+                    perclos_times[1] += totalTime #t2
+                    state = 2
+                else: # perc_open < 20
+                    perclos_times[2] += totalTime #t3
+                    perclos_times[3] += totalTime #t4
+                    state = 3
+    
+            case 1:
+                if(perc_open >= 80): 
+                    perclos_times[0] += totalTime #t1
+                elif (20 <= perc_open and perc_open < 80):
+                    perclos_times[1] += totalTime #t2
+                    state = 2
+                else: # perc_open < 20
+                    perclos_times[2] += totalTime #t3
+                    perclos_times[3] += totalTime #t4
+                    state = 3
 
-        elif(20 <= perc_open < 80):    #state 2 or 4
-            if(state == 0 or state == 1): #since the previous state was 1, now we're in state 2
-                state = 2
-                perclos_times[1] += totalTime
-            elif(state == 3): #since the previous state was 3, now we're in state 4
-                state = 4
-                perclos_times[3] += totalTime
+            case 2:
+                if(perc_open >= 80): 
+                    perclos_times[0] += totalTime #t1
+                    state = 1
+                elif (20 <= perc_open and perc_open < 80):
+                    perclos_times[1] += totalTime #t2
+                else: # perc_open < 20
+                    perclos_times[2] += totalTime #t3
+                    perclos_times[3] += totalTime #t4
+                    state = 3
 
-        else: #perc_open < 20 => state 3
-            state = 3
-            perclos_times[2] += totalTime
+            case 3:
+                if(perc_open >= 80): 
+                    perclos_times[0] += totalTime #t1
+                    state = 1
+                elif (20 <= perc_open and perc_open < 80):
+                    perclos_times[3] += totalTime #t4
+                    state = 4
+                else: # perc_open < 20
+                    perclos_times[2] += totalTime #t3
+                    perclos_times[3] += totalTime #t4
+
+            case 4:
+                if(perc_open >= 80): 
+                    #perclos cycle finished: the perclos is computed and another cycle is started
+                    print("perclos: ", perclos(perclos_times)) #take all the four times and compute perclos
+                    perclos_times = [0, 0, 0, 0]
+                    perclos_times[0] += totalTime #t1
+                    state = 1
+                elif (20 <= perc_open and perc_open < 80):
+                    perclos_times[3] += totalTime #t4
+                else: # perc_open < 20
+                    # it's like perclos cycle finished and restarted already without passing through the state 1 (>80%): 
+                    # the perclos is computed and another cycle is started
+                    print("perclos: ", perclos(perclos_times)) #take all the four times and compute perclos
+                    perclos_times = [0, 0, 0, 0]
+                    perclos_times[2] += totalTime #t3
+                    perclos_times[3] += totalTime #t4
+                    state = 3
+                    
 
 
         # ---------------------------------------------------------------------------------------------------------------------
